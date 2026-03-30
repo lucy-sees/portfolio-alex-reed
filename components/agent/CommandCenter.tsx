@@ -4,13 +4,15 @@ import { useState } from "react";
 import AgentGreeting from "./AgentGreeting";
 import { useAgent } from "./useAgent";
 import { SITE_META } from "@/lib/config";
+import { useBreakpoint } from "@/lib/useBreakpoint";
 
 // ─── CommandCenter ────────────────────────────────────────────────────────────
-// Glassmorphic AI command bar embedded in the profile card.
 
 export default function CommandCenter() {
   const { query, placeholder, typed, setQuery } = useAgent();
   const [focused, setFocused] = useState(false);
+  const screen = useBreakpoint();
+  const isMobile = screen === "mobile";
 
   return (
     <>
@@ -20,26 +22,27 @@ export default function CommandCenter() {
           background: "rgba(255,255,255,0.12)",
           backdropFilter: "blur(10px)",
           border: "1px solid rgba(255,255,255,0.25)",
-          borderRadius: "1rem",
-          padding: "0.75rem 1rem",
+          borderRadius: "0.875rem",
+          padding: isMobile ? "0.5rem 0.75rem" : "0.75rem 1rem",
           transition: "all 0.3s",
           boxShadow: focused ? "0 0 0 2px rgba(255,255,255,0.4)" : "none",
         }}
       >
         <p
           style={{
-            fontSize: "10px",
+            fontSize: "9px",
             fontWeight: 600,
             letterSpacing: "0.1em",
             textTransform: "uppercase",
             color: "rgba(255,255,255,0.65)",
-            margin: "0 0 4px",
+            margin: "0 0 3px",
           }}
         >
           Agent
         </p>
 
-        <AgentGreeting typed={typed} />
+        {/* Hide typewriter on mobile to save space — just show the input */}
+        {!isMobile && <AgentGreeting typed={typed} />}
 
         <input
           className="agent-input"
@@ -47,7 +50,7 @@ export default function CommandCenter() {
           onChange={(e) => setQuery(e.target.value)}
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}
-          placeholder={placeholder}
+          placeholder={isMobile ? "Search..." : placeholder}
           style={{
             width: "100%",
             background: "rgba(255,255,255,0.15)",
@@ -55,7 +58,7 @@ export default function CommandCenter() {
             borderRadius: "0.5rem",
             color: "#fff",
             fontSize: "12px",
-            padding: "6px 10px",
+            padding: "5px 8px",
             outline: "none",
             boxSizing: "border-box",
           }}
@@ -69,15 +72,17 @@ export default function CommandCenter() {
           alignItems: "center",
           justifyContent: "space-between",
           borderTop: "1px solid rgba(255,255,255,0.2)",
-          marginTop: "1rem",
-          paddingTop: "0.75rem",
+          marginTop: isMobile ? "0.5rem" : "1rem",
+          paddingTop: isMobile ? "0.5rem" : "0.75rem",
         }}
       >
-        <span style={{ fontSize: "11px", opacity: 0.75 }}>{SITE_META.email}</span>
+        <span style={{ fontSize: isMobile ? "10px" : "11px", opacity: 0.75 }}>
+          {SITE_META.email}
+        </span>
         <span
           style={{
             fontFamily: "'Material Symbols Outlined'",
-            fontSize: "16px",
+            fontSize: "14px",
             opacity: 0.5,
           }}
         >

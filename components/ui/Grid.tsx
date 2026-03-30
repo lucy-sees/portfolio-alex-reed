@@ -5,11 +5,15 @@ import Card from "./Card";
 import { CARDS, HERO_IMAGE_URL } from "@/lib/config";
 import { useAgentContext } from "@/context/AgentContext";
 import { fonts } from "@/styles/theme";
+import { useBreakpoint } from "@/lib/useBreakpoint";
 
 // ─── Grid ─────────────────────────────────────────────────────────────────────
 
 export default function Grid() {
   const { highlighted, query } = useAgentContext();
+  const screen = useBreakpoint();
+  const isMobile = screen === "mobile";
+  const isTablet = screen === "tablet";
 
   const sortedCards = useMemo(() => {
     if (!highlighted) return CARDS;
@@ -19,20 +23,28 @@ export default function Grid() {
   }, [highlighted]);
 
   return (
-    <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "1.5rem", minWidth: "300px" }}>
+    <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: isMobile ? "1rem" : "1.5rem" }}>
 
-      {/* Main image + tall stat cards */}
-      <div style={{ display: "flex", gap: "1.5rem", flex: 1 }}>
-
+      {/* ── Hero image + tall stat cards ─────────────────────────────────── */}
+      <div
+        style={{
+          display: "flex",
+          flexDirection: isMobile ? "column" : "row",
+          gap: isMobile ? "1rem" : "1.5rem",
+          flex: 1,
+        }}
+      >
         {/* Hero image */}
         <div
           style={{
-            flex: "0 0 55%",
-            borderRadius: "2rem",
+            flex: isMobile ? "unset" : "0 0 55%",
+            borderRadius: "1.5rem",
             overflow: "hidden",
             position: "relative",
             background: "#c5e8e7",
-            minHeight: "260px",
+            // Fixed aspect ratio on mobile so it doesn't collapse
+            aspectRatio: isMobile ? "16/9" : undefined,
+            minHeight: isMobile ? "unset" : "260px",
           }}
         >
           <img
@@ -40,27 +52,12 @@ export default function Grid() {
             alt="Visual Art"
             style={{ width: "100%", height: "100%", objectFit: "cover", position: "absolute", inset: 0 }}
           />
-          <div
-            style={{
-              position: "absolute",
-              inset: 0,
-              background: "rgba(160,226,225,0.15)",
-              mixBlendMode: "multiply",
-            }}
-          />
-          <div
-            style={{
-              position: "absolute",
-              inset: 0,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
+          <div style={{ position: "absolute", inset: 0, background: "rgba(160,226,225,0.15)", mixBlendMode: "multiply" }} />
+          <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
             <div
               style={{
-                width: "56px",
-                height: "56px",
+                width: "48px",
+                height: "48px",
                 background: "rgba(255,255,255,0.92)",
                 borderRadius: "50%",
                 display: "flex",
@@ -70,30 +67,36 @@ export default function Grid() {
                 cursor: "pointer",
                 transition: "transform 0.2s",
               }}
-              onMouseEnter={(e) =>
-                (e.currentTarget.style.transform = "scale(1.1)")
-              }
-              onMouseLeave={(e) =>
-                (e.currentTarget.style.transform = "scale(1)")
-              }
+              onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.1)")}
+              onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
             >
-              <span style={{ fontFamily: fonts.icons, fontSize: "28px", color: "#000" }}>
-                play_arrow
-              </span>
+              <span style={{ fontFamily: fonts.icons, fontSize: "26px", color: "#000" }}>play_arrow</span>
             </div>
           </div>
         </div>
 
-        {/* Tall stat cards (first 2) */}
-        <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "1rem" }}>
+        {/* Tall stat cards (first 2) — side by side on mobile, column otherwise */}
+        <div
+          style={{
+            flex: 1,
+            display: "flex",
+            flexDirection: isMobile ? "row" : "column",
+            gap: "1rem",
+          }}
+        >
           {sortedCards.slice(0, 2).map((card) => (
-            <Card key={card.id} card={card} highlighted={highlighted} size="tall" />
+            <Card
+              key={card.id}
+              card={card}
+              highlighted={highlighted}
+              size={isMobile ? "wide" : "tall"}
+            />
           ))}
         </div>
       </div>
 
-      {/* Bottom wide cards (last 2) */}
-      <div style={{ display: "flex", gap: "1rem" }}>
+      {/* ── Bottom wide cards (last 2) ────────────────────────────────────── */}
+      <div style={{ display: "flex", gap: "1rem", flexWrap: "nowrap" }}>
         {sortedCards.slice(2).map((card) => (
           <Card key={card.id} card={card} highlighted={highlighted} size="wide" />
         ))}
@@ -104,17 +107,18 @@ export default function Grid() {
             style={{
               flex: 1,
               background: "#111",
-              borderRadius: "2rem",
-              padding: "1.25rem 1.5rem",
+              borderRadius: "1.5rem",
+              padding: "1rem 1.25rem",
               display: "flex",
               flexDirection: "column",
               justifyContent: "center",
+              minWidth: 0,
             }}
           >
-            <p style={{ fontSize: "10px", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#8E94F2", margin: "0 0 4px" }}>
+            <p style={{ fontSize: "9px", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#8E94F2", margin: "0 0 4px" }}>
               Filtering
             </p>
-            <p style={{ fontSize: "13px", color: "#fff", margin: 0, fontWeight: 600 }}>
+            <p style={{ fontSize: "12px", color: "#fff", margin: 0, fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
               &ldquo;{query}&rdquo;
             </p>
           </div>
